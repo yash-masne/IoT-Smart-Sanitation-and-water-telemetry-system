@@ -34,5 +34,5 @@ Below are the visual demonstrations of the physical prototype, showcasing the cu
 **2. Physical Sensor Placement & Water Tank**
 ![Sensor Setup](images/sensor_setup.jpeg)
 
-**3. Enterprise Web Dashboard (Real-Time Telemetry)**
-![Web Dashboard](images/web_dashboard.jpeg)
+**3. Complete Project Setup**
+![Project Setup](images/complete_setup.jpeg)
