@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "smart-water-system-e5126"
+  },
+  "targets": {
+    "smart-water-system-e5126": {
+      "hosting": {
+        "smartwatersystem": [
+          "smartwatersystem"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

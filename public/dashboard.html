@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Water System| Live Tracker</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .nav-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+        @media (max-width: 768px) {
+    .metric-value {
+        font-size: 2.5rem;
+    }
+
+    .metric-card {
+        padding: 25px;
+    }
+    @media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 2.2rem;
+    }
+}
+}
+@media (max-width: 768px) {
+    .btn-header {
+        width: 100%;
+        text-align: center;
+    }
+}
+        :root {
+            --primary: #2563EB; --primary-hover: #1D4ED8; --bg-white: #ffffff;
+            --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
+            --danger: #ef4444; --success: #22c55e;
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-white); color: var(--text-main); }
+        
+        /* --- FIXED NAVIGATION: NO OVERLAP --- */
+       nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 20px 5%;
+    background: var(--primary);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+/* ===== ENHANCEMENT LAYER (MATCH INDEX) ===== */
+
+* {
+    transition: all 0.25s ease;
+}
+
+/* Buttons upgrade */
+.btn-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-header:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* ripple effect */
+.btn-header::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+.btn-header:hover::after {
+    width: 200%;
+    height: 500%;
+}
+
+/* STATUS pill */
+.status-pill:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+}
+
+/* live pulse */
+.dot.online {
+    animation: pulseGlow 1.5s infinite;
+}
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 5px #4ade80; }
+    50% { box-shadow: 0 0 15px #4ade80; }
+    100% { box-shadow: 0 0 5px #4ade80; }
+}
+
+/* metric cards hover */
+.metric-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-color: #bfdbfe;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+}
+
+/* panel hover */
+.dash-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+}
+
+/* button action premium */
+.btn-action:hover {
+    box-shadow: 0 10px 25px rgba(37,99,235,0.3);
+}
+
+/* gauge smooth feel */
+.gauge-fill {
+    transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+}
+        .nav-left { 
+    font-weight: 800; 
+    font-size: 1.5rem;   /* match index */
+    color: white;        /* match index */
+    letter-spacing: -0.5px;
+    flex-shrink: 0; 
+}
+        
+        .nav-right { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        
+        .status-pill { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    background: rgba(255,255,255,0.15); 
+    padding: 8px 16px; 
+    border-radius: 50px; 
+    font-weight: 700; 
+    font-size: 0.8rem;   /* match index */
+    color: white;        /* 🔥 THIS FIXES IT */
+    white-space: nowrap; 
+    flex-shrink: 0;
+}
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; transition: 0.3s; }
+        .dot.online { background: #4ade80; box-shadow: 0 0 10px #4ade80; }
+
+        .btn-header { 
+    background-color: var(--bg-white);
+    color: var(--primary);
+    border: none;
+    padding: 10px 20px;        /* 🔥 bigger like index */
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;         /* 🔥 match index */
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+        .btn-header:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* DASHBOARD CONTENT */
+        .dashboard-container { padding: 40px 5%; max-width: 1200px; margin: 0 auto; }
+        
+        /* LOW TANK ALERT (STRICTLY AS PREVIOUS) */
+        #waterAlert { 
+            display: none; background: #fee2e2; color: var(--danger); border: 2px solid #fecaca; 
+            padding: 20px; border-radius: 16px; margin-bottom: 30px; font-weight: 800; 
+            text-align: center; font-size: 1.2rem; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.01); opacity: 0.8; } }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .metric-card { background: var(--bg-white); padding: 40px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        
+        .gauge-box { width: 110px; height: 110px; position: relative; margin-bottom: 20px; }
+        .gauge-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .gauge-bg { fill: none; stroke: #f1f5f9; stroke-width: 10; }
+        .gauge-fill { fill: none; stroke: var(--primary); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 283; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .metric-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 15px; }
+        .metric-value { font-size: 3.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+
+        .dash-grid-2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; }
+        .dash-panel { background: var(--bg-white); padding: 35px; border-radius: 20px; border: 1px solid var(--border); }
+        
+        .btn-action { width: 100%; padding: 20px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { background: var(--primary-hover); transform: scale(1.02); }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; }
+        .modal { background: var(--bg-white); padding: 50px; border-radius: 24px; text-align: center; width: 90%; max-width: 420px; }
+        .pin-input { font-size: 2.5rem; width: 100%; text-align: center; letter-spacing: 12px; border: 2px solid var(--border); border-radius: 12px; padding: 15px; margin: 30px 0; font-family: monospace; }
+        
+           @media (max-width: 768px) { 
+       .dash-grid-2 { grid-template-columns: 1fr; } 
+       .nav-right { gap: 8px; } 
+       .btn-header { padding: 8px 12px; font-size: 0.75rem; } 
+   }
+
+   /* ✅ ADD HERE */
+   .logo {
+       font-size: 1.5rem;
+       font-weight: 800;
+       letter-spacing: -0.5px;
+       cursor: pointer;
+   }
+   .logo:hover {
+       transform: scale(1.05);
+   }
+
+   /* NEW: CUSTOM SUCCESS/ERROR ALERTS */
+   .alert-overlay {
+       display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 300; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+   }
+   .alert-modal {
+       background: var(--bg-white); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+   }
+   .alert-overlay.show { opacity: 1; }
+   .alert-overlay.show .alert-modal { transform: scale(1); }
+   .alert-icon { font-size: 3.5rem; margin-bottom: 15px; line-height: 1; }
+   .alert-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 10px 0; }
+   .alert-subtext { color: var(--text-muted); font-size: 0.95rem; margin: 0; font-weight: 600; }
+   .alert-success .alert-title { color: var(--success); }
+   .alert-error .alert-title { color: var(--danger); }
+   .site-footer {
+            background-color: var(--text-main);
+            padding: 30px 5% 20px;
+            margin-top: 100px;
+        }
+        .footer-team {
+            max-width: 600px;
+            margin: 0 auto 20px;
+            
+            text-align: center;
+        }
+        .team-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #475569;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .team-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .team-member {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            cursor: default;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .team-member .role {
+            font-size: 0.7rem;
+            color: var(--primary-light);
+            opacity: 0.6;
+            transition: 0.3s ease;
+        }
+        /* Centered Hover Effect */
+        .team-member:hover {
+            color: var(--bg-white);
+            transform: scale(1.05);
+        }
+        .team-member:hover .role {
+            opacity: 1;
+        }
+        .footer-bottom {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* The small line */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .footer-logo {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--bg-white);
+            letter-spacing: -0.5px;
+            opacity: 0.9;
+        }
+        .footer-copy {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .footer-guide {
+            max-width: 600px;
+            margin: 0 auto 25px; /* Adds space before the team section */
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .guide-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #93C5FD; /* Highlights the professor's name */
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .guide-name:hover {
+            color: var(--bg-white);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left logo">Smart Water System</div>
+        <div class="nav-right">
+            <div class="status-pill">
+                <div class="dot" id="statusDot"></div>
+                <span id="statusLabel">OFFLINE</span>
+            </div>
+            <a href="index.html" class="btn-header">Home</a>
+            <a href="records.html" class="btn-header" style="background:rgba(255,255,255,0.2); color:white;">Usage Logs</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+       
+        <div id="waterAlert">⚠️ LOW TANK LEVEL: REFILL REQUIRED IMMEDIATELY</div>
+
+        <div style="position: relative;">
+            
+            <div id="offlineOverlay" style="display: none; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(3px); z-index: 50; border-radius: 20px; align-items: center; justify-content: center; font-weight: 800; color: var(--danger); font-size: 1.5rem; text-align: center; padding: 20px;">
+                ⚠ Device Offline – Showing Last Known Data
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card" style="display: flex; align-items: center; gap: 40px;">
+                    <div class="gauge-box">
+                        <svg class="gauge-svg" viewBox="0 0 100 100">
+                            <circle class="gauge-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="gaugeFill" class="gauge-fill" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="metric-title">Tank Capacity</div>
+                        <div class="metric-value" id="waterLevelDisplay">--%</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-title">Consumption</div>
+                    <div class="metric-value" id="waterUsedDisplay">0<span style="font-size: 1.5rem; color: var(--text-muted); margin-left:8px;">mL</span></div>
+                    <p id="lastUsageText" style="margin-top: 20px; font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">Status: Waiting for data...</p>
+                </div>
+
+                <div class="metric-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);">
+                    <div class="metric-title" style="color: var(--success);">Saved Today</div>
+                    <div class="metric-value" id="waterSavedDisplay" style="color: var(--success);">0.00L</div>
+                    <p style="margin-top: 20px; font-weight: 700; color: #166534; font-size: 0.85rem;">Sustainability Impact</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-grid-2">
+            <div class="dash-panel">
+                <h3 style="margin-top: 0;">Real-Time Data Stream</h3>
+                <canvas id="usageChart" height="150"></canvas>
+            </div>
+            <div class="dash-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <span style="background: #eff6ff; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">AUTHORIZED CONTROL</span>
+                    <h3 style="margin: 15px 0 10px;">Remote Command</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Authorize a manual 3-second refill cycle.</p>
+                </div>
+                <button class="btn-action" id="openPinModalBtn">INITIATE REFILL</button>
+                <p id="lastSyncTime" style="text-align: center; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 20px;">Last Sync: Never</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pinModal">
+        <div class="modal">
+            <h2 style="margin:0;">Authorization</h2>
+            <p style="color: var(--text-muted);">Enter 4-digit security PIN.</p>
+            <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="••••">
+            <div style="display: flex; gap: 15px;">
+                <button onclick="document.getElementById('pinModal').style.display='none'" style="flex:1; padding: 18px; border-radius: 12px; border:none; font-weight:700;">Cancel</button>
+                <button id="submitPinBtn" class="btn-action" style="flex:1; padding: 18px; border-radius:12px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert-overlay" id="successAlert">
+        <div class="alert-modal alert-success">
+            <div class="alert-icon">✅</div>
+            <h3 class="alert-title">Authorized Successfully</h3>
+            <p class="alert-subtext">Command has been sent to device.</p>
+        </div>
+    </div>
+
+    <div class="alert-overlay" id="errorAlert">
+        <div class="alert-modal alert-error">
+            <div class="alert-icon">❌</div>
+            <h3 class="alert-title">Access Denied</h3>
+            <p class="alert-subtext">Incorrect PIN. Please try again.</p>
+        </div>
+    </div>
+
+<footer class="site-footer">
+        
+        
+
+        <div class="footer-team">
+            <div class="team-title">Engineered & Designed By</div>
+            <ul class="team-list">
+                <li class="team-member">Mr. Yash Anant Masne </li>
+                <li class="team-member">Mr. Kunal Ranjit Kubde</li>
+                <li class="team-member">Mr. Sumit Suresh Deoche</li>
+                <li class="team-member">Mr. Shaikh Samar Shaikh Akhtar</li>
+                <li class="team-member">Mr. Prajot Gajanan Shejole</li>
+            </ul>
+        </div>
+        <div class="footer-guide">
+            <div class="team-title">Under the Guidance Of</div>
+            <div class="guide-name">Prof. P. R. Bhakare</div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-logo">Smart Water System</div>
+            <div class="footer-copy">&copy; 2026 All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyBnQXfDLt_DHWpRLcuX6qYGa7QyOBD6Ug4", authDomain: "smart-water-system-e5126.firebaseapp.com", projectId: "smart-water-system-e5126", databaseURL: "https://smart-water-system-e5126-default-rtdb.firebaseio.com" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let usageData = Array(15).fill(0);
+        let timeLabels = Array(15).fill('');
+        let lastSeenTimestamp = 0;
+        let serverOffset = 0;
+
+        // Get the time difference between your PC and Firebase Server
+        onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+            serverOffset = snap.val() || 0;
+        });
+
+        // FETCH DATA
+        onValue(ref(db, 'smartwash/station_1'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // UPDATE METRICS
+                const p = Math.round(data.waterPercent || 0);
+                document.getElementById('waterLevelDisplay').innerText = p + '%';
+                document.getElementById('gaugeFill').style.strokeDashoffset = 283 - (p / 100 * 283);
+                document.getElementById('gaugeFill').style.stroke = p > 30 ? "#2563EB" : p > 15 ? "#f59e0b" : "#ef4444";
+                document.getElementById('waterAlert').style.display = p < 20 ? 'block' : 'none';
+                
+                const ml = data.totalMilliLitres || 0;
+                document.getElementById('waterUsedDisplay').innerHTML = ml + '<span style="font-size: 1.5rem; margin-left: 8px; color:#64748b">mL</span>';
+                document.getElementById('waterSavedDisplay').innerText = (ml * 0.0015).toFixed(2) + 'L';
+                
+                // Pulling the frozen timestamp from the database
+                lastSeenTimestamp = data.lastSeen || 0;
+                
+                // Update Chart Data Arrays Smoothly
+                const now = new Date();
+                timeLabels.push(now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+                timeLabels.shift();
+                
+                usageData.push(ml);
+                usageData.shift();
+                myChart.update();
+                
+                document.getElementById('lastSyncTime').innerText = `Data Sync: ${now.toLocaleTimeString()}`;
+            }
+        });
+
+        // HEARTBEAT WATCHDOG
+        setInterval(() => {
+            const dot = document.getElementById('statusDot');
+            const label = document.getElementById('statusLabel');
+            const overlay = document.getElementById('offlineOverlay');
+            
+            // Current Server Time = Your local time + server offset
+            const serverTimeNow = Date.now() + serverOffset;
+            const ageInSeconds = (serverTimeNow - lastSeenTimestamp) / 1000;
+
+            // Threshold is 15 seconds (allows for network latency)
+            if (lastSeenTimestamp !== 0 && ageInSeconds < 15) {
+                dot.classList.add('online');
+                label.innerText = "LIVE CONNECTION";
+                document.getElementById('lastUsageText').innerText = "Status: System Active";
+                overlay.style.display = 'none';
+            } else {
+                dot.classList.remove('online');
+                label.innerText = "OFFLINE";
+                document.getElementById('lastUsageText').innerText = "Status: Device Offline";
+                
+                if (lastSeenTimestamp !== 0) {
+                    overlay.style.display = 'flex';
+                }
+            }
+        }, 3000);
+
+        // NEW: CUSTOM ALERT LOGIC
+        function showCustomAlert(type) {
+            const overlay = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+            overlay.style.display = 'flex';
+            
+            // Slight delay to allow display:flex to apply before adding transition class
+            setTimeout(() => overlay.classList.add('show'), 10);
+            
+            // Auto close after 2.5 seconds
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.style.display = 'none', 300); // wait for fade out
+            }, 2500);
+        }
+
+        // PIN & OVERRIDE (UPDATED WITH CUSTOM ALERTS)
+        document.getElementById('openPinModalBtn').onclick = () => document.getElementById('pinModal').style.display='flex';
+        
+        document.getElementById('submitPinBtn').onclick = () => {
+            const pinInput = document.getElementById('pinInput');
+            
+            if (pinInput.value === "1122") {
+                set(ref(db, 'smartwash/station_1/triggerRefill'), 1).then(() => { 
+                    document.getElementById('pinModal').style.display='none'; 
+                    pinInput.value = ""; // Clear input for next time
+                    showCustomAlert('success');
+                });
+            } else { 
+                pinInput.value = ""; // Clear incorrect input
+                showCustomAlert('error'); 
+            }
+        };
+
+        // CHART
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: { 
+                labels: timeLabels, 
+                datasets: [{ 
+                    label: 'Usage (mL)',
+                    data: usageData, 
+                    borderColor: '#2563EB', 
+                    borderWidth: 3,
+                    fill: true, 
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)', 
+                    tension: 0.4, 
+                    pointRadius: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#2563EB'
+                }] 
+            },
+            options: { 
+                responsive: true,
+                animation: {
+                    duration: 400,
+                    easing: 'linear'
+                },
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#f1f5f9' },
+                        title: {
+                            display: true,
+                            text: 'Water Usage (mL)',
+                            font: { weight: 'bold' }
+                        }
+                    }, 
+                    x: { 
+                        display: true,
+                        grid: { display: false },
+                        ticks: {
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 6
+                        }
+                    } 
+                } 
+            }
+        });
+        
+    </script>
+</body>
+</html>
