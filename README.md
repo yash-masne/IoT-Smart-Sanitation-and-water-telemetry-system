@@ -32,7 +32,7 @@ Below are the visual demonstrations of the physical prototype, showcasing the cu
 ![Control Board](images/control_board.jpeg)
 
 **2. Physical Sensor Placement & Water Tank**
-![Sensor Setup](images/sensor_setup.jpeg)
+![Sensor Setup](complete_setup.jpeg)
 
 **3. Complete Project Setup**
-![Project Setup](images/complete_setup.jpeg)
+![Project Setup](images/images/sensor_setup.jpeg)
