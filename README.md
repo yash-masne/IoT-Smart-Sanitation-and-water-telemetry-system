@@ -29,10 +29,10 @@ Below are the visual demonstrations of the physical prototype, showcasing the cu
 *Images will be displayed here:*
 
 **1. Centralized Control Board & Microcontroller**
-![Control Board](images/control_board.jpg)
+![Control Board](images/control_board.jpeg)
 
 **2. Physical Sensor Placement & Water Tank**
-![Sensor Setup](images/sensor_setup.jpg)
+![Sensor Setup](images/sensor_setup.jpeg)
 
 **3. Enterprise Web Dashboard (Real-Time Telemetry)**
-![Web Dashboard](images/web_dashboard.png)
+![Web Dashboard](images/web_dashboard.jpeg)
